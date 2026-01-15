@@ -1,10 +1,54 @@
+version: "3.9"
+
 services:
-  php:
-    build: .
+  # -------------------------------
+  # PHP Backend container
+  # -------------------------------
+  app:
+    build: ./deesdiner-backend                # Build from your actual backend folder
     container_name: deesdiner-php
     ports:
-      - "8080:80"
+      - "8081:80"                             # Access backend APIs via localhost:8081
     volumes:
-      - .:/var/www/html
+      - ./deesdiner-backend:/var/www/html    # Mount backend code only
     depends_on:
       - db
+
+  # -------------------------------
+  # Postgres DB container
+  # -------------------------------
+  db:
+    image: postgres:16
+    container_name: deesdiner-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: deesdiner
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: yourpassword
+    ports:
+      - "5433:5432"                           # Host port 5433 → container 5432
+    volumes:
+      - pg_data:/var/lib/postgresql/data      # Persist DB data
+
+  # -------------------------------
+  # pgAdmin container
+  # -------------------------------
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: deesdiner-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: muenidoris22@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: supersecret123
+    ports:
+      - "8080:80"                             # Access pgAdmin at localhost:8080
+    depends_on:
+      - db
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin         # Persist pgAdmin settings
+
+# -------------------------------
+# Docker volumes
+# -------------------------------
+volumes:
+  pg_data:
+  pgadmin_data:
